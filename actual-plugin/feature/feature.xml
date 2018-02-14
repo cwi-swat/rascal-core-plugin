@@ -37,5 +37,5 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&
 
    <plugin id="typepal" version="0.0.0" download-size="0" install-size="0" unpack="false"/>
    <plugin id="rascal_core_plugin" version="0.0.0" download-size="0" install-size="0" unpack="false"/>
-   <plugin id="org.rascalmpl.rascal_core_bundle" version="0.0.0" download-size="0" install-size="0" unpack="false"/>
+   <plugin id="org.rascalmpl.rascal_core_bundle" version="0.1.0.qualifier" download-size="0" install-size="0" unpack="false"/>
 </feature>

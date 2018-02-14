@@ -1,12 +1,12 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1518623511515
+Bnd-LastModified: 1518635826765
 Build-Jdk: 1.8.0_162
 Built-By: Davy
 Bundle-ClassPath: jars/rascal-core-0.1.0-20180214.153122-6.jar
 Bundle-ManifestVersion: 2
 Bundle-Name: rascal_core_bundle
 Bundle-SymbolicName: org.rascalmpl.rascal_core_bundle
-Bundle-Version: 0.1.0.SNAPSHOT
+Bundle-Version: 0.1.0.20180214191704
 Created-By: Apache Maven Bundle Plugin
 Embed-Dependency: rascal-core
 Embed-Directory: jars
