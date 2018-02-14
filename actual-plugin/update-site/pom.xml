@@ -4,7 +4,7 @@
 
 	<parent>
         <groupId>org.rascalmpl</groupId>
-        <artifactId>rascal-core-plugin</artifactId>
+        <artifactId>rascal-core-plugin-parent</artifactId>
         <version>0.1.0-SNAPSHOT</version>
 	</parent>
 
