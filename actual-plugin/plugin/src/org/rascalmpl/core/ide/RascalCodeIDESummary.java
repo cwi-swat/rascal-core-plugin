@@ -3,7 +3,7 @@ package org.rascalmpl.core.ide;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
-
+import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -44,17 +44,7 @@ public class RascalCodeIDESummary implements IDESummaryService {
     }
     
     private static Bundle findRascalCoreBundle() {
-    	BundleContext context = FrameworkUtil.getBundle(RascalCodeIDESummary.class).getBundleContext();
-    	Bundle result = null;
-    	for (Bundle candidate : context.getBundles()) {
-    		if (candidate.getSymbolicName().equals("org.rascalmpl.rascal_core_bundle")) {
-    			if (result == null || result.getVersion().compareTo(candidate.getVersion()) < 0) {
-    				result = candidate;
-    			}
-    		}
-    	}
-    	Activator.log("Found bundle: " + result, null);
-    	return result;
+    	return Platform.getBundle("org.rascalmpl.rascal_core_bundle");
     }
 
 	private Evaluator getEvaluator() {

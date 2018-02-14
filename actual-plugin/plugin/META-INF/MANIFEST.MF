@@ -8,3 +8,4 @@ Require-Bundle: rascal_eclipse;bundle-version="0.10.0",
  org.rascalmpl.rascal_core_bundle,
  typepal;bundle-version="0.2.0",
  org.eclipse.osgi;bundle-version="3.12.50"
+Import-Package: org.eclipse.core.runtime
