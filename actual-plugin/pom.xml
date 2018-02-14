@@ -44,12 +44,6 @@
         <module>update-site</module>
     </modules>
 
-    <scm>
-        <developerConnection>scm:git:ssh://git@github.com/cwi-swat/rascal-core-plugin.git</developerConnection>
-        <tag>HEAD</tag>
-    </scm>
-
-
     <dependencies>
 		<dependency>
 			<groupId>org.rascalmpl</groupId>
