@@ -1,8 +1,15 @@
 package org.rascalmpl.core.ide;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Enumeration;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
+
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -12,6 +19,7 @@ import org.rascalmpl.eclipse.editor.IDESummaryService;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.library.lang.rascal.boot.IKernel;
+import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.INode;
@@ -26,7 +34,9 @@ public class RascalCodeIDESummary implements IDESummaryService {
     	// so we need to construct the evaluator on a seperate thread, to try and avoid freezing the main thread
     	singleEvaluator = new FutureTask<>(() -> {
     		try {
-    			Evaluator eval = ProjectEvaluatorFactory.getInstance().getBundleEvaluator(findRascalCoreBundle());
+    			Bundle coreBundle = findRascalCoreBundle();
+    			Evaluator eval = ProjectEvaluatorFactory.getInstance().getBundleEvaluator(coreBundle);
+    			addNestedJarsToBundle(eval, coreBundle);
     			eval.doImport(null, "lang::rascalcore::check::Summary");
     			eval.doImport(null, "lang::rascal::ide::Outline");
     			return eval;
@@ -43,7 +53,22 @@ public class RascalCodeIDESummary implements IDESummaryService {
     	lazyInit.start();
     }
     
-    private static Bundle findRascalCoreBundle() {
+    private static void addNestedJarsToBundle(Evaluator eval, Bundle coreBundle) {
+    	//URIUtil.correctLocation("plugin", bundle.getSymbolicName();
+    	Enumeration<URL> ents = coreBundle.findEntries("jars/", "*.jar", false);
+    	while (ents.hasMoreElements()) {
+    		URL nestedJar = ents.nextElement();
+    		try {
+				URL unpacked = FileLocator.toFileURL(nestedJar);
+				String jarFile = new File(URIUtil.fromURL(unpacked)).getAbsolutePath();
+				ProjectEvaluatorFactory.addJarToSearchPath(URIUtil.createFileLocation(jarFile), eval);
+			} catch (IOException | URISyntaxException e) {
+				Activator.log("Cannot load nested jar: " + nestedJar, e);
+			}
+    	}
+	}
+
+	private static Bundle findRascalCoreBundle() {
     	return Platform.getBundle("org.rascalmpl.rascal_core_bundle");
     }
 
