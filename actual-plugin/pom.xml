@@ -13,6 +13,22 @@
 
     <packaging>pom</packaging>
 
+	<scm>
+        <developerConnection>scm:git:ssh://git@github.com/cwi-swat/rascal-core-plugin.git</developerConnection>
+		<tag>HEAD</tag>
+	</scm>
+
+	<distributionManagement>
+		<repository>
+			<id>usethesource-releases</id>
+			<url>http://nexus.usethesource.io/content/repositories/releases/</url>
+		</repository>
+		<snapshotRepository>
+			<id>usethesource-snapshots</id>
+			<url>http://nexus.usethesource.io/content/repositories/snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
+
 	<properties>
 		<tycho-version>1.1.0</tycho-version>
 		<maven.deploy.skip>true</maven.deploy.skip>

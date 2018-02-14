@@ -23,6 +23,22 @@
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     </properties>
 
+	<scm>
+        <developerConnection>scm:git:ssh://git@github.com/cwi-swat/rascal-core-plugin.git</developerConnection>
+		<tag>HEAD</tag>
+	</scm>
+
+	<distributionManagement>
+		<repository>
+			<id>usethesource-releases</id>
+			<url>http://nexus.usethesource.io/content/repositories/releases/</url>
+		</repository>
+		<snapshotRepository>
+			<id>usethesource-snapshots</id>
+			<url>http://nexus.usethesource.io/content/repositories/snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
+
     <repositories>
         <repository>
             <id>usethesource-cache</id>
