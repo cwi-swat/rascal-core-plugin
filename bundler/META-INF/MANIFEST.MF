@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1518611163849
+Bnd-LastModified: 1518612781583
 Build-Jdk: 1.8.0_162
 Built-By: Davy
-Bundle-ClassPath: jars/rascal-core-0.1.0-20180213.223150-3.jar,jars/rasc
- al-0.11.0-20180209.131823-25.jar
+Bundle-ClassPath: jars/rascal-core-0.1.0-SNAPSHOT.jar,jars/rascal-0.11.0
+ -20180209.131823-25.jar
 Bundle-ManifestVersion: 2
 Bundle-Name: rascal_core_bundle
 Bundle-SymbolicName: org.rascalmpl.rascal_core_bundle
@@ -12,9 +12,9 @@ Created-By: Apache Maven Bundle Plugin
 Embed-Dependency: rascal-core, rascal
 Embed-Directory: jars
 Embed-Transitive: true
-Embedded-Artifacts: jars/rascal-core-0.1.0-20180213.223150-3.jar;g="org.
- rascalmpl";a="rascal-core";v="0.1.0-SNAPSHOT",jars/rascal-0.11.0-201802
- 09.131823-25.jar;g="org.rascalmpl";a="rascal";v="0.11.0-SNAPSHOT"
+Embedded-Artifacts: jars/rascal-core-0.1.0-SNAPSHOT.jar;g="org.rascalmpl
+ ";a="rascal-core";v="0.1.0-SNAPSHOT",jars/rascal-0.11.0-20180209.131823
+ -25.jar;g="org.rascalmpl";a="rascal";v="0.11.0-SNAPSHOT"
 Import-Package: com.sun.management;resolution:=optional,javax.annotation
  ;resolution:=optional,javax.crypto;resolution:=optional,javax.crypto.sp
  ec;resolution:=optional,javax.management;resolution:=optional,javax.net

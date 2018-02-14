@@ -53,6 +53,7 @@ public class RascalCodeIDESummary implements IDESummaryService {
     			}
     		}
     	}
+    	Activator.log("Found bundle: " + result, null);
     	return result;
     }
 
@@ -73,6 +74,7 @@ public class RascalCodeIDESummary implements IDESummaryService {
 			return null;
 		}
 		synchronized (eval) {
+			Activator.log("calculating summary: " + eval, null);
 			return (IConstructor) eval.call("makeSummary", moduleName, pcfg);
 		}
 	}
