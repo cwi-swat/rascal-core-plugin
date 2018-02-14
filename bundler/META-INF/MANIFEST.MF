@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1518620406452
+Bnd-LastModified: 1518623511515
 Build-Jdk: 1.8.0_162
 Built-By: Davy
-Bundle-ClassPath: jars/rascal-core-0.1.0-SNAPSHOT.jar
+Bundle-ClassPath: jars/rascal-core-0.1.0-20180214.153122-6.jar
 Bundle-ManifestVersion: 2
 Bundle-Name: rascal_core_bundle
 Bundle-SymbolicName: org.rascalmpl.rascal_core_bundle
@@ -10,9 +10,10 @@ Bundle-Version: 0.1.0.SNAPSHOT
 Created-By: Apache Maven Bundle Plugin
 Embed-Dependency: rascal-core
 Embed-Directory: jars
+Embed-StripVersion: false
 Embed-Transitive: true
-Embedded-Artifacts: jars/rascal-core-0.1.0-SNAPSHOT.jar;g="org.rascalmpl
- ";a="rascal-core";v="0.1.0-SNAPSHOT"
+Embedded-Artifacts: jars/rascal-core-0.1.0-20180214.153122-6.jar;g="org.
+ rascalmpl";a="rascal-core";v="0.1.0-SNAPSHOT"
 Import-Package: com.github.benmanes.caffeine.cache;resolution:=optional,
  com.github.luben.zstd;resolution:=optional;version="[1.3,2)",io.usethes
  ource.capsule;resolution:=optional,io.usethesource.capsule.util.collect

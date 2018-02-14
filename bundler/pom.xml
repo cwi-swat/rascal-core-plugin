@@ -48,6 +48,7 @@
                         <Bundle-ClassPath>{maven-dependencies}</Bundle-ClassPath>
                         <Import-Package>*;resolution:=optional</Import-Package>
                         <Embed-Transitive>true</Embed-Transitive>
+                        <Embed-StripVersion>false</Embed-StripVersion>
                         <Embed-Directory>jars</Embed-Directory>
                         <_failok>true</_failok>
                         <_nouses>true</_nouses>
