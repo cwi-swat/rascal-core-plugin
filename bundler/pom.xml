@@ -14,11 +14,6 @@
             <artifactId>rascal-core</artifactId> 
             <version>0.1.0-SNAPSHOT</version> 
         </dependency> 
-        <dependency> 
-            <groupId>org.rascalmpl</groupId> 
-            <artifactId>rascal</artifactId> 
-            <version>0.11.0-SNAPSHOT</version> 
-        </dependency> 
     </dependencies> 
 
     <properties>
@@ -48,7 +43,7 @@
                 <configuration>
                     <instructions>
                         <Embed-Dependency>
-                            rascal-core, rascal
+                            rascal-core
                         </Embed-Dependency>
                         <Bundle-ClassPath>{maven-dependencies}</Bundle-ClassPath>
                         <Import-Package>*;resolution:=optional</Import-Package>
