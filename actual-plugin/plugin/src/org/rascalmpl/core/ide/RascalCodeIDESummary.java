@@ -6,15 +6,12 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.IDESummaryService;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
@@ -29,12 +26,14 @@ import io.usethesource.vallang.IValue;
 
 public class RascalCodeIDESummary implements IDESummaryService {
 	
-	private final Future<Evaluator> singleEvaluator;
+	private final Future<Evaluator> checkerEvaluator;
+	private final Future<Evaluator> outlineEvaluator;
+
     public RascalCodeIDESummary() {
 
     	// this constructor is run on the main thread, and so are the callbacks
     	// so we need to construct the evaluator on a seperate thread, to try and avoid freezing the main thread
-    	singleEvaluator = new FutureTask<>(() -> {
+    	checkerEvaluator = new FutureTask<>(() -> {
     		try {
     			Bundle coreBundle = findRascalCoreBundle();
     			Evaluator eval = ProjectEvaluatorFactory.getInstance().getBundleEvaluator(coreBundle);
@@ -48,11 +47,26 @@ public class RascalCodeIDESummary implements IDESummaryService {
     			return null;
     		}
     	});
+    	outlineEvaluator = new FutureTask<>(() -> {
+    		try {
+    			Evaluator eval = ProjectEvaluatorFactory.getInstance().getEvaluator(null);
+    			eval.doImport(null, "lang::rascal::ide::Outline");
+    			return eval;
+    		}
+    		catch (Throwable e) {
+    			Activator.log("Cannot initialize outline evaluator", e);
+    			return null;
+    		}
+    	});
     	// schedule the init on a thread that runs once and finishes after initializing the evaluator
-    	Thread lazyInit = new Thread((FutureTask<?>)singleEvaluator);
+    	Thread lazyInit = new Thread((FutureTask<?>)checkerEvaluator);
     	lazyInit.setDaemon(true);
-    	lazyInit.setName("Background initializer for evaluator");
+    	lazyInit.setName("Background initializer for rascal-core evaluator");
     	lazyInit.start();
+    	Thread lazyInit2 = new Thread((FutureTask<?>)outlineEvaluator);
+    	lazyInit2.setDaemon(true);
+    	lazyInit2.setName("Background initializer for outline evaluator ");
+    	lazyInit2.start();
     }
     
     private static void addNestedJarsToBundle(Evaluator eval, Bundle coreBundle) {
@@ -74,34 +88,43 @@ public class RascalCodeIDESummary implements IDESummaryService {
     	return Platform.getBundle("org.rascalmpl.rascal_core_bundle");
     }
 
-	private Evaluator getEvaluator() {
-		try {
-			return singleEvaluator.get();
-		} catch (InterruptedException | ExecutionException e) {
-			return null;
-		}
-	}
-	
-
-
 	@Override
 	public IConstructor calculate(IKernel kernel, IString moduleName, IConstructor pcfg) {
-		final Evaluator eval = getEvaluator();
-		if (eval == null) {
-			return null;
-		}
-		synchronized (eval) {
-			IValue tmodel = eval.call("rascalTModelFromName", "lang::rascalcore::check::Checker",new HashMap<>(), moduleName, pcfg);
-			if (tmodel == null) {
+		try {
+			final Evaluator eval = checkerEvaluator.get();
+			if (eval == null) {
 				return null;
 			}
-			return (IConstructor) eval.call("makeSummary", tmodel, moduleName);
+			synchronized (eval) {
+				IValue tmodel = eval.call("rascalTModelFromName", "lang::rascalcore::check::Checker",new HashMap<>(), moduleName, pcfg);
+				if (tmodel == null) {
+					return null;
+				}
+				return (IConstructor) eval.call("makeSummary", tmodel, moduleName);
+			}
+		}
+		catch (Throwable t) {
+			Activator.log("Could not calculate outline", t);
+			return null;
 		}
 	}
 
 	@Override
 	public INode getOutline(IKernel kernel, IConstructor moduleTree) {
-		return kernel.outline(moduleTree);
+		try {
+			final Evaluator eval = outlineEvaluator.get();
+            if (eval == null) {
+                return null;
+            }
+			synchronized (eval) {
+				return (INode) eval.call("outline", moduleTree);
+			}
+		}
+		catch (Throwable t) {
+			Activator.log("Could not calculate outline", t);
+			return null;
+		}
 	}
+
 
 }
