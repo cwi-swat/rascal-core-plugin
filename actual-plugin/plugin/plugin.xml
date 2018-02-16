@@ -2,11 +2,10 @@
 <?eclipse version="3.0"?>
 <plugin>
    <extension
-         id="rascal-core-summary"
-         name="rascal-core-summary"
-         point="rascal_eclipse.rascalIDESummary">
-      <summaryProvider
-            class="org.rascalmpl.core.ide.RascalCodeIDESummary">
-      </summaryProvider>
+         point="rascal_eclipse.rascalIDE">
+      <ideProvider
+            builderClass="org.rascalmpl.core.ide.RascalCodeIDEBuilder"
+            summaryClass="org.rascalmpl.core.ide.RascalCodeIDESummary">
+      </ideProvider>
    </extension>
 </plugin>
