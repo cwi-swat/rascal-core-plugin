@@ -5,6 +5,9 @@ node {
         }
 
         withMaven(maven: 'M3', options: [artifactsPublisher(disabled: true)] ) {
+            stage('Clean cache for bundler') {
+                sh "cd bundler && mvn dependency:purge-local-repository -DmanualInclude=\"org.rascalmpl:rascal-core\" -DreResolve=false"
+            }
             stage('Build Bundle'){
                 sh "cd bundler && mvn clean install"
             }
