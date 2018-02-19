@@ -6,14 +6,14 @@ import java.util.concurrent.FutureTask;
 
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.builder.BuildRascalService;
-import org.rascalmpl.eclipse.editor.IDEServicesModelProvider;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
+import static org.rascalmpl.core.ide.CoreBundleEvaluatorFactory.ERROR_WRITER;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IValue;
 
 public class RascalCodeIDEBuilder implements BuildRascalService {
 	
@@ -50,7 +50,9 @@ public class RascalCodeIDEBuilder implements BuildRascalService {
 			synchronized (eval) {
                 return (IList) eval.call("check", files, pcfg);
 			}
-		} catch (InterruptedException | ExecutionException e) {
+		} catch (Throwable e) {
+			ERROR_WRITER.println("Check failed: " + e.getMessage());
+			e.printStackTrace(ERROR_WRITER);
             return EMPTY_LIST;
 		}
 	}
@@ -65,7 +67,9 @@ public class RascalCodeIDEBuilder implements BuildRascalService {
 			synchronized (eval) {
 				return (IList) eval.call("checkAll", folder, pcfg);
 			}
-		} catch (InterruptedException | ExecutionException e) {
+		} catch (Throwable e) {
+			ERROR_WRITER.println("Check failed: " + e.getMessage());
+			e.printStackTrace(ERROR_WRITER);
             return EMPTY_LIST;
 		}
 	}
