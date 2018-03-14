@@ -13,7 +13,10 @@ import static org.rascalmpl.core.ide.CoreBundleEvaluatorFactory.ERROR_WRITER;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 
 public class RascalCodeIDEBuilder implements BuildRascalService {
 	
@@ -40,6 +43,20 @@ public class RascalCodeIDEBuilder implements BuildRascalService {
     	t.start();
 	}
 
+	private static IList filterOutRascalFiles(IList files, IValueFactory vf) {
+		IListWriter result = vf.listWriter();
+		for (IValue l : files) {
+			if (l instanceof ISourceLocation && !isIgnoredLocation((ISourceLocation)l)) {
+				result.append(l);
+			}
+		}
+		return result.done();
+	}
+
+	private static boolean isIgnoredLocation(ISourceLocation l) {
+		return "project".equals(l.getScheme()) && ("rascal".equals(l.getAuthority()) || "rascal-eclipse".equals(l.getAuthority()));
+	}
+
 	@Override
 	public IList compile(IList files, IConstructor pcfg) {
 		try {
@@ -48,6 +65,7 @@ public class RascalCodeIDEBuilder implements BuildRascalService {
 				return EMPTY_LIST;
 			}
 			synchronized (eval) {
+				files = filterOutRascalFiles(files, eval.getValueFactory());
                 return (IList) eval.call("check", files, pcfg);
 			}
 		} catch (Throwable e) {
@@ -56,10 +74,14 @@ public class RascalCodeIDEBuilder implements BuildRascalService {
             return EMPTY_LIST;
 		}
 	}
+	
 
 	@Override
 	public IList compileAll(ISourceLocation folder, IConstructor pcfg) {
 		try {
+			if (isIgnoredLocation(folder)) {
+				return EMPTY_LIST;
+			}
 			Evaluator eval = checkerEvaluator.get();
 			if (eval == null) {
 				return EMPTY_LIST;
