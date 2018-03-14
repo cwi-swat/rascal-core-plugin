@@ -16,7 +16,6 @@ import io.usethesource.vallang.IString;
 public class RascalCodeIDESummary implements IDESummaryService {
 	
 	private final Future<Evaluator> checkerEvaluator;
-	private final Future<Evaluator> outlineEvaluator;
 
     public RascalCodeIDESummary() {
 
@@ -33,26 +32,11 @@ public class RascalCodeIDESummary implements IDESummaryService {
     			return null;
     		}
     	});
-    	outlineEvaluator = new FutureTask<>(() -> {
-    		try {
-    			Evaluator eval = ProjectEvaluatorFactory.getInstance().getEvaluator(null);
-    			eval.doImport(null, "lang::rascal::ide::Outline");
-    			return eval;
-    		}
-    		catch (Throwable e) {
-    			Activator.log("Cannot initialize outline evaluator", e);
-    			return null;
-    		}
-    	});
     	// schedule the init on a thread that runs once and finishes after initializing the evaluator
     	Thread lazyInit = new Thread((FutureTask<?>)checkerEvaluator);
     	lazyInit.setDaemon(true);
     	lazyInit.setName("Background initializer for rascal-core evaluator");
     	lazyInit.start();
-    	Thread lazyInit2 = new Thread((FutureTask<?>)outlineEvaluator);
-    	lazyInit2.setDaemon(true);
-    	lazyInit2.setName("Background initializer for outline evaluator ");
-    	lazyInit2.start();
     }
     
 
@@ -76,13 +60,7 @@ public class RascalCodeIDESummary implements IDESummaryService {
 	@Override
 	public INode getOutline(IKernel kernel, IConstructor moduleTree) {
 		try {
-			final Evaluator eval = outlineEvaluator.get();
-            if (eval == null) {
-                return null;
-            }
-			synchronized (eval) {
-				return (INode) eval.call("outline", moduleTree);
-			}
+			return kernel.outline(moduleTree);
 		}
 		catch (Throwable t) {
 			Activator.log("Could not calculate outline", t);
