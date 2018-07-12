@@ -1,17 +1,20 @@
 package org.rascalmpl.core.ide;
 
+import static org.rascalmpl.core.ide.CoreBundleEvaluatorFactory.ERROR_WRITER;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
-
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.IDESummaryService;
-import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.library.lang.rascal.boot.IKernel;
-
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IString;
+import io.usethesource.vallang.io.StandardTextWriter;
 
 public class RascalCodeIDESummary implements IDESummaryService {
 	
@@ -42,19 +45,35 @@ public class RascalCodeIDESummary implements IDESummaryService {
 
 	@Override
 	public IConstructor calculate(IKernel kernel, IString moduleName, IConstructor pcfg) {
-		try {
-			final Evaluator eval = checkerEvaluator.get();
+			Evaluator eval;
+			try {
+				eval = checkerEvaluator.get();
+			} catch (InterruptedException | ExecutionException e1) {
+				Activator.log("Could not calculate outline", e1);
+				return null;
+			}
 			if (eval == null) {
 				return null;
 			}
 			synchronized (eval) {
-				return (IConstructor) eval.call("makeSummary", moduleName, pcfg);
+				try {
+					return (IConstructor) eval.call("makeSummary", moduleName, pcfg);
+
+				} catch (Throwable e) {
+					ERROR_WRITER.println("makeSummary failed for: " + moduleName);
+					ERROR_WRITER.println("exception: ");
+					if (e instanceof StaticError) {
+						ReadEvalPrintDialogMessages.staticErrorMessage(ERROR_WRITER, (StaticError) e, new StandardTextWriter(true));
+					}
+					else if (e instanceof Throw) {
+						ReadEvalPrintDialogMessages.throwMessage(ERROR_WRITER, (Throw) e, new StandardTextWriter(true));
+					}
+					else {
+						ReadEvalPrintDialogMessages.throwableMessage(ERROR_WRITER, e, eval.getStackTrace(), new StandardTextWriter(true));
+					}
+					return null;
+				}
 			}
-		}
-		catch (Throwable t) {
-			Activator.log("Could not calculate summary", t);
-			return null;
-		}
 	}
 
 	@Override
