@@ -2,11 +2,11 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: rascal_core_plugin
 Bundle-SymbolicName: rascal_core_plugin;singleton:=true
-Bundle-Version: 0.1.0.qualifier
+Bundle-Version: 0.2.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: rascal_eclipse;bundle-version="0.10.0",
+Require-Bundle: rascal_eclipse,
  org.rascalmpl.rascal_core_bundle,
- typepal;bundle-version="0.2.0",
+ typepal,
  org.eclipse.osgi;bundle-version="3.12.50",
- impulse;bundle-version="0.3.0"
+ impulse
 Import-Package: org.eclipse.core.runtime

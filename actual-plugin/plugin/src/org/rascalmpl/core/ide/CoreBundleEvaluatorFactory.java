@@ -23,7 +23,7 @@ import io.usethesource.impulse.runtime.RuntimePlugin;
 public class CoreBundleEvaluatorFactory {
 
 	public static final PrintWriter ERROR_WRITER 
-		= new PrintWriter(new OutputStreamWriter(RuntimePlugin.getInstance().getConsoleStream(), StandardCharsets.UTF_16), true);
+		= new PrintWriter(RuntimePlugin.getInstance().getConsoleStream(), true);
 	
 	public static Evaluator construct() {
 		Bundle coreBundle = findRascalCoreBundle();

@@ -9,7 +9,7 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal-core-plugin-parent</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.2.0-SNAPSHOT</version>
 
     <packaging>pom</packaging>
 
@@ -48,7 +48,7 @@
 		<dependency>
 			<groupId>org.rascalmpl</groupId>
 			<artifactId>rascal_core_bundle</artifactId>
-			<version>0.1.0-SNAPSHOT</version>
+			<version>0.2.0-SNAPSHOT</version>
 		</dependency>
     </dependencies>
 
