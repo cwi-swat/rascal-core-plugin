@@ -3,7 +3,6 @@ package org.rascalmpl.core.ide;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
-
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.builder.BuildRascalService;
 import org.rascalmpl.interpreter.Evaluator;
@@ -11,8 +10,6 @@ import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
-import static org.rascalmpl.core.ide.CoreBundleEvaluatorFactory.ERROR_WRITER;
-
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
@@ -79,16 +76,16 @@ public class RascalCodeIDEBuilder implements BuildRascalService {
 			try {
 				return (IList) eval.call("check", files, pcfg);
 			} catch (Throwable e) {
-				ERROR_WRITER.println("check failed for: " + files);
-				ERROR_WRITER.println("exception: ");
+				eval.getStdErr().println("check failed for: " + files);
+				eval.getStdErr().println("exception: ");
 				if (e instanceof StaticError) {
-					ReadEvalPrintDialogMessages.staticErrorMessage(ERROR_WRITER, (StaticError) e, new StandardTextWriter(true));
+					ReadEvalPrintDialogMessages.staticErrorMessage(eval.getStdErr(), (StaticError) e, new StandardTextWriter(true));
 				}
 				else if (e instanceof Throw) {
-					ReadEvalPrintDialogMessages.throwMessage(ERROR_WRITER, (Throw) e, new StandardTextWriter(true));
+					ReadEvalPrintDialogMessages.throwMessage(eval.getStdErr(), (Throw) e, new StandardTextWriter(true));
 				}
 				else {
-					ReadEvalPrintDialogMessages.throwableMessage(ERROR_WRITER, e, eval.getStackTrace(), new StandardTextWriter(true));
+					ReadEvalPrintDialogMessages.throwableMessage(eval.getStdErr(), e, eval.getStackTrace(), new StandardTextWriter(true));
 				}
 				return EMPTY_LIST;
 			}
@@ -114,16 +111,16 @@ public class RascalCodeIDEBuilder implements BuildRascalService {
 			try {
 				return (IList) eval.call("checkAll", folder, pcfg);
 			} catch (Throwable e) {
-				ERROR_WRITER.println("checkAll failed for: " + folder);
-				ERROR_WRITER.println("exception: ");
+				eval.getStdErr().println("checkAll failed for: " + folder);
+				eval.getStdErr().println("exception: ");
 				if (e instanceof StaticError) {
-					ReadEvalPrintDialogMessages.staticErrorMessage(ERROR_WRITER, (StaticError) e, new StandardTextWriter(true));
+					ReadEvalPrintDialogMessages.staticErrorMessage(eval.getStdErr(), (StaticError) e, new StandardTextWriter(true));
 				}
 				else if (e instanceof Throw) {
-					ReadEvalPrintDialogMessages.throwMessage(ERROR_WRITER, (Throw) e, new StandardTextWriter(true));
+					ReadEvalPrintDialogMessages.throwMessage(eval.getStdErr(), (Throw) e, new StandardTextWriter(true));
 				}
 				else {
-					ReadEvalPrintDialogMessages.throwableMessage(ERROR_WRITER, e, eval.getStackTrace(), new StandardTextWriter(true));
+					ReadEvalPrintDialogMessages.throwableMessage(eval.getStdErr(), e, eval.getStackTrace(), new StandardTextWriter(true));
 				}
 				return EMPTY_LIST;
 			}

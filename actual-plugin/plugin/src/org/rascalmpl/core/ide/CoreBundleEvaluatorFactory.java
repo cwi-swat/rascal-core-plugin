@@ -2,14 +2,9 @@ package org.rascalmpl.core.ide;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
-
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
@@ -18,12 +13,7 @@ import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.uri.URIUtil;
 
-import io.usethesource.impulse.runtime.RuntimePlugin;
-
 public class CoreBundleEvaluatorFactory {
-
-	public static final PrintWriter ERROR_WRITER 
-		= new PrintWriter(RuntimePlugin.getInstance().getConsoleStream(), true);
 	
 	public static Evaluator construct() {
 		Bundle coreBundle = findRascalCoreBundle();

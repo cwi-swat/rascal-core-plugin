@@ -1,6 +1,5 @@
 package org.rascalmpl.core.ide;
 
-import static org.rascalmpl.core.ide.CoreBundleEvaluatorFactory.ERROR_WRITER;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
@@ -60,16 +59,16 @@ public class RascalCodeIDESummary implements IDESummaryService {
 					return (IConstructor) eval.call("makeSummary", moduleName, pcfg);
 
 				} catch (Throwable e) {
-					ERROR_WRITER.println("makeSummary failed for: " + moduleName);
-					ERROR_WRITER.println("exception: ");
+					eval.getStdErr().println("makeSummary failed for: " + moduleName);
+					eval.getStdErr().println("exception: ");
 					if (e instanceof StaticError) {
-						ReadEvalPrintDialogMessages.staticErrorMessage(ERROR_WRITER, (StaticError) e, new StandardTextWriter(true));
+						ReadEvalPrintDialogMessages.staticErrorMessage(eval.getStdErr(), (StaticError) e, new StandardTextWriter(true));
 					}
 					else if (e instanceof Throw) {
-						ReadEvalPrintDialogMessages.throwMessage(ERROR_WRITER, (Throw) e, new StandardTextWriter(true));
+						ReadEvalPrintDialogMessages.throwMessage(eval.getStdErr(), (Throw) e, new StandardTextWriter(true));
 					}
 					else {
-						ReadEvalPrintDialogMessages.throwableMessage(ERROR_WRITER, e, eval.getStackTrace(), new StandardTextWriter(true));
+						ReadEvalPrintDialogMessages.throwableMessage(eval.getStdErr(), e, eval.getStackTrace(), new StandardTextWriter(true));
 					}
 					return null;
 				}
