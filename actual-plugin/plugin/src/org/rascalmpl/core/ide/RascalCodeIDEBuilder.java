@@ -28,7 +28,6 @@ public class RascalCodeIDEBuilder implements BuildRascalService {
 		// so we need to construct the evaluator on a seperate thread, to try and avoid freezing the main thread
 		checkerEvaluator = new FutureTask<>(() -> {
 			try {
-				Activator.log("Initializing the rascal-core type checker", new RuntimeException());
 				Evaluator eval = CoreBundleEvaluatorFactory.construct();
 				eval.doImport(null, "lang::rascalcore::check::Checker");
 				return eval;
