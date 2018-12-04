@@ -10,6 +10,7 @@ import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
+import io.usethesource.impulse.runtime.RuntimePlugin;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
@@ -28,6 +29,8 @@ public class RascalCodeIDEBuilder implements BuildRascalService {
 		// so we need to construct the evaluator on a seperate thread, to try and avoid freezing the main thread
 		checkerEvaluator = new FutureTask<>(() -> {
 			try {
+				RuntimePlugin.getInstance().getConsoleStream().println("Initializing checker for first time, please hold");
+				RuntimePlugin.getInstance().getConsoleStream().flush();
 				Evaluator eval = CoreBundleEvaluatorFactory.construct();
 				eval.doImport(null, "lang::rascalcore::check::Checker");
 				return eval;
