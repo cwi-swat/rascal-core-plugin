@@ -18,7 +18,7 @@ import io.usethesource.vallang.io.StandardTextWriter;
 public class RascalCodeIDESummary implements IDESummaryService {
 	
 	private final Future<Evaluator> checkerEvaluator;
-	private final FutureTask<Evaluator> outlineEvaluator;
+	private final Future<Evaluator> outlineEvaluator;
 
     public RascalCodeIDESummary() {
     	// this constructor is run on the main thread, and so are the callbacks
