@@ -2,8 +2,6 @@ package org.rascalmpl.core.ide;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
-import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.builder.BuildRascalService;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -27,23 +25,13 @@ public class RascalCodeIDEBuilder implements BuildRascalService {
 	public RascalCodeIDEBuilder() {
 		// this constructor is run on the main thread, and so are the callbacks
 		// so we need to construct the evaluator on a seperate thread, to try and avoid freezing the main thread
-		checkerEvaluator = new FutureTask<>(() -> {
-			try {
-				RuntimePlugin.getInstance().getConsoleStream().println("Initializing checker for first time, please hold");
-				RuntimePlugin.getInstance().getConsoleStream().flush();
-				Evaluator eval = CoreBundleEvaluatorFactory.construct();
-				eval.doImport(null, "lang::rascalcore::check::Checker");
-				return eval;
-			}
-			catch (Throwable e) {
-				Activator.log("Cannot initialize rascal-core type checker", e);
-				return null;
-			}
+		checkerEvaluator = BackgroundInitializer.construct("rascal-core type checker", () -> {
+            RuntimePlugin.getInstance().getConsoleStream().println("Initializing checker for first time, please hold");
+            RuntimePlugin.getInstance().getConsoleStream().flush();
+            Evaluator eval = CoreBundleEvaluatorFactory.construct();
+            eval.doImport(null, "lang::rascalcore::check::Checker");
+            return eval;
 		});
-		Thread t = new Thread((Runnable) checkerEvaluator);
-		t.setName("Background checker initialization");
-		t.setDaemon(true);
-		t.start();
 	}
 
 	private static IList filterOutRascalFiles(IList files, IValueFactory vf) {

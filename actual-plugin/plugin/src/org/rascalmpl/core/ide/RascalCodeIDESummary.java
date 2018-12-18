@@ -2,7 +2,6 @@ package org.rascalmpl.core.ide;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.IDESummaryService;
 import org.rascalmpl.interpreter.Evaluator;
@@ -23,42 +22,20 @@ public class RascalCodeIDESummary implements IDESummaryService {
     public RascalCodeIDESummary() {
     	// this constructor is run on the main thread, and so are the callbacks
     	// so we need to construct the evaluator on a seperate thread, to try and avoid freezing the main thread
-    	checkerEvaluator = new FutureTask<>(() -> {
-    		try {
-    			Evaluator eval = CoreBundleEvaluatorFactory.construct();
-    			eval.doImport(null, "lang::rascalcore::check::Summary");
-    			return eval;
-    		}
-    		catch (Throwable e) {
-    			Activator.log("Cannot initialize rascal-core type checker", e);
-    			return null;
-    		}
-    	});
 
-    	outlineEvaluator = new FutureTask<>(() -> {
-    		try {
-    			Evaluator eval = CoreBundleEvaluatorFactory.construct();
-    			eval.doImport(null, "lang::rascal::ide::Outline");
-    			return eval;
-    		}
-    		catch (Throwable e) {
-    			Activator.log("Cannot initialize rascal-core type checker", e);
-    			return null;
-    		}
+		checkerEvaluator = BackgroundInitializer.construct("rascal-core type checker", () -> {
+            Evaluator eval = CoreBundleEvaluatorFactory.construct();
+            eval.doImport(null, "lang::rascalcore::check::Summary");
+            return eval;
+		});
+
+		outlineEvaluator = BackgroundInitializer.construct("rascal outline calculator", () -> {
+            Evaluator eval = CoreBundleEvaluatorFactory.construct();
+            eval.doImport(null, "lang::rascal::ide::Outline");
+            return eval;
     	});
-    	scheduleTask((FutureTask<Evaluator>) checkerEvaluator);
-    	scheduleTask((FutureTask<Evaluator>) outlineEvaluator);
     }
 
-
-	private void scheduleTask(FutureTask<Evaluator> task) {
-		// schedule the init on a thread that runs once and finishes after initializing the evaluator
-    	Thread lazyInit = new Thread(task);
-    	lazyInit.setDaemon(true);
-    	lazyInit.setName("Background initializer for evaluators");
-    	lazyInit.start();
-	}
-    
 
 	@Override
 	public IConstructor calculate(IKernel kernel, IString moduleName, IConstructor pcfg) {
