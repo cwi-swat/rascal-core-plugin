@@ -17,7 +17,6 @@ import io.usethesource.vallang.io.StandardTextWriter;
 public class RascalCodeIDESummary implements IDESummaryService {
 	
 	private final Future<Evaluator> checkerEvaluator;
-	private final Future<Evaluator> outlineEvaluator;
 
     public RascalCodeIDESummary() {
     	// this constructor is run on the main thread, and so are the callbacks
@@ -28,12 +27,6 @@ public class RascalCodeIDESummary implements IDESummaryService {
             eval.doImport(null, "lang::rascalcore::check::Summary");
             return eval;
 		});
-
-		outlineEvaluator = BackgroundInitializer.construct("rascal outline calculator", () -> {
-            Evaluator eval = CoreBundleEvaluatorFactory.construct();
-            eval.doImport(null, "lang::rascal::ide::Outline");
-            return eval;
-    	});
     }
 
 
@@ -72,32 +65,7 @@ public class RascalCodeIDESummary implements IDESummaryService {
 
 	@Override
 	public INode getOutline(IKernel kernel, IConstructor moduleTree) {
-		Evaluator eval;
-		try {
-			eval = outlineEvaluator.get();
-		} catch (InterruptedException | ExecutionException e1) {
-			Activator.log("Could not calculate outline", e1);
-			return null;
-		}
-        synchronized (eval) {
-            try {
-                return (INode) eval.call("outline", moduleTree);
-
-            } catch (Throwable e) {
-                eval.getStdErr().println("outline failed for: " + moduleTree);
-                eval.getStdErr().println("exception: ");
-                if (e instanceof StaticError) {
-                    ReadEvalPrintDialogMessages.staticErrorMessage(eval.getStdErr(), (StaticError) e, new StandardTextWriter(true));
-                }
-                else if (e instanceof Throw) {
-                    ReadEvalPrintDialogMessages.throwMessage(eval.getStdErr(), (Throw) e, new StandardTextWriter(true));
-                }
-                else {
-                    ReadEvalPrintDialogMessages.throwableMessage(eval.getStdErr(), e, eval.getStackTrace(), new StandardTextWriter(true));
-                }
-                return null;
-            }
-        }
+		return kernel.outline(moduleTree);
 	}
 
 
