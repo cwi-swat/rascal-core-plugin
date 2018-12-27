@@ -2,6 +2,8 @@ package org.rascalmpl.core.ide;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.IDESummaryService;
 import org.rascalmpl.interpreter.Evaluator;
@@ -25,6 +27,7 @@ public class RascalCodeIDESummary implements IDESummaryService {
 		checkerEvaluator = BackgroundInitializer.construct("rascal-core type checker", () -> {
             Evaluator eval = CoreBundleEvaluatorFactory.construct();
             eval.doImport(null, "lang::rascalcore::check::Summary");
+            eval.doImport(null, "lang::rascal::ide::Outline");
             return eval;
 		});
     }
@@ -65,7 +68,12 @@ public class RascalCodeIDESummary implements IDESummaryService {
 
 	@Override
 	public INode getOutline(IKernel kernel, IConstructor moduleTree) {
-		return kernel.outline(moduleTree);
+		try {
+			return (INode) checkerEvaluator.get().call((IRascalMonitor) null, "outline", moduleTree);
+		} catch (InterruptedException | ExecutionException e) {
+			Activator.log("Could not calculate outline", e);
+			return null;
+		}
 	}
 
 
