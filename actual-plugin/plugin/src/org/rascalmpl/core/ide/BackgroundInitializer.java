@@ -26,12 +26,14 @@ public class BackgroundInitializer {
 	
 	public static Future<Evaluator> lazyImport(String name, String... modules) {
 		return construct(name, () -> {
-            RuntimePlugin.getInstance().getConsoleStream().println("Initializing " + name + "please hold");
+            RuntimePlugin.getInstance().getConsoleStream().println("Initializing evaluator for: " + name + "...");
             RuntimePlugin.getInstance().getConsoleStream().flush();
             Evaluator eval = CoreBundleEvaluatorFactory.construct();
             for (String m : modules) {
             	eval.doImport(null, m);
             }
+            RuntimePlugin.getInstance().getConsoleStream().println("Finished initializing evaluator for: " + name);
+            RuntimePlugin.getInstance().getConsoleStream().flush();
             return eval;
 		});
 	}

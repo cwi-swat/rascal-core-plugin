@@ -24,7 +24,7 @@ public class RascalCodeIDESummary implements IDESummaryService {
     public RascalCodeIDESummary() {
     	// this constructor is run on the main thread, and so are the callbacks
     	// so we need to construct the evaluator on a seperate thread, to try and avoid freezing the main thread
-		checkerEvaluator = BackgroundInitializer.lazyImport("rascal-core type checker", "lang::rascalcore::check::Summary");
+		checkerEvaluator = BackgroundInitializer.lazyImport("rascal-core type checker - summary", "lang::rascalcore::check::Summary");
 		outlineEvaluator = BackgroundInitializer.lazyImport("outline", "lang::rascal::ide::Outline");
     }
 
