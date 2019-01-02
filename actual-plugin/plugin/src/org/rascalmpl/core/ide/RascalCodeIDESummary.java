@@ -19,17 +19,13 @@ import io.usethesource.vallang.io.StandardTextWriter;
 public class RascalCodeIDESummary implements IDESummaryService {
 	
 	private final Future<Evaluator> checkerEvaluator;
+	private final Future<Evaluator> outlineEvaluator;
 
     public RascalCodeIDESummary() {
     	// this constructor is run on the main thread, and so are the callbacks
     	// so we need to construct the evaluator on a seperate thread, to try and avoid freezing the main thread
-
-		checkerEvaluator = BackgroundInitializer.construct("rascal-core type checker", () -> {
-            Evaluator eval = CoreBundleEvaluatorFactory.construct();
-            eval.doImport(null, "lang::rascalcore::check::Summary");
-            eval.doImport(null, "lang::rascal::ide::Outline");
-            return eval;
-		});
+		checkerEvaluator = BackgroundInitializer.lazyImport("rascal-core type checker", "lang::rascalcore::check::Summary");
+		outlineEvaluator = BackgroundInitializer.lazyImport("outline", "lang::rascal::ide::Outline");
     }
 
 
@@ -69,7 +65,7 @@ public class RascalCodeIDESummary implements IDESummaryService {
 	@Override
 	public INode getOutline(IKernel kernel, IConstructor moduleTree) {
 		try {
-			Evaluator eval = checkerEvaluator.get();
+			Evaluator eval = outlineEvaluator.get();
 			if (eval == null) {
 				Activator.log("Could not calculate outline due to missing evaluator", null);
 				return null;

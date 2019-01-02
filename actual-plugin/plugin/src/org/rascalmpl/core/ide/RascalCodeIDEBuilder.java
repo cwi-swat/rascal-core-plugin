@@ -8,7 +8,6 @@ import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
-import io.usethesource.impulse.runtime.RuntimePlugin;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
@@ -25,13 +24,7 @@ public class RascalCodeIDEBuilder implements BuildRascalService {
 	public RascalCodeIDEBuilder() {
 		// this constructor is run on the main thread, and so are the callbacks
 		// so we need to construct the evaluator on a seperate thread, to try and avoid freezing the main thread
-		checkerEvaluator = BackgroundInitializer.construct("rascal-core type checker", () -> {
-            RuntimePlugin.getInstance().getConsoleStream().println("Initializing checker for first time, please hold");
-            RuntimePlugin.getInstance().getConsoleStream().flush();
-            Evaluator eval = CoreBundleEvaluatorFactory.construct();
-            eval.doImport(null, "lang::rascalcore::check::Checker");
-            return eval;
-		});
+		checkerEvaluator = BackgroundInitializer.lazyImport("rascal-core type checker", "lang::rascalcore::check::Checker");
 	}
 
 	private static IList filterOutRascalFiles(IList files, IValueFactory vf) {

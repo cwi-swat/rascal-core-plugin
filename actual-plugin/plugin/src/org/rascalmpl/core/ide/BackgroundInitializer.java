@@ -4,6 +4,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.interpreter.Evaluator;
+import io.usethesource.impulse.runtime.RuntimePlugin;
 
 public class BackgroundInitializer {
 	public static <T> Future<T> construct(String name, Callable<T> generate) {
@@ -20,6 +22,18 @@ public class BackgroundInitializer {
 		background.setName("Background initializer for: " + name);
 		background.start();
 		return result;
+	}
+	
+	public static Future<Evaluator> lazyImport(String name, String... modules) {
+		return construct(name, () -> {
+            RuntimePlugin.getInstance().getConsoleStream().println("Initializing " + name + "please hold");
+            RuntimePlugin.getInstance().getConsoleStream().flush();
+            Evaluator eval = CoreBundleEvaluatorFactory.construct();
+            for (String m : modules) {
+            	eval.doImport(null, m);
+            }
+            return eval;
+		});
 	}
 
 }
