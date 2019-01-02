@@ -68,21 +68,20 @@ public class RascalCodeIDESummary implements IDESummaryService {
 
 	@Override
 	public INode getOutline(IKernel kernel, IConstructor moduleTree) {
-		Evaluator eval;
-		
 		try {
-			eval = checkerEvaluator.get();
+			Evaluator eval = checkerEvaluator.get();
+			if (eval == null) {
+				Activator.log("Could not calculate outline due to missing evaluator", null);
+				return null;
+			}
+			synchronized (eval) {
+                return (INode) eval.call((IRascalMonitor) null, "outline", moduleTree);
+			}
 		} 
 		catch (InterruptedException | ExecutionException e1) {
-			Activator.log("Could not calculate summary", e1);
+			Activator.log("Could not calculate outline due to failure of the evaluator", e1);
 			return null;
 		}
-		
-		if (eval == null) {
-			return null;
-		}
-		
-		return (INode) eval.call((IRascalMonitor) null, "outline", moduleTree);
 	}
 
 
