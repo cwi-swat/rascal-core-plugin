@@ -40,8 +40,8 @@ public class RascalCodeIDESummary implements IDESummaryService {
                 return (IConstructor) eval.call("makeSummary", moduleName, pcfg);
 			}
 		} 
-		catch (InterruptedException | ExecutionException e1) {
-			Activator.log("Could not calculate makeSummary due to failure of constructing the evaluator", e1);
+		catch (InterruptedException | ExecutionException e) {
+			Activator.log("Could not calculate makeSummary due to failure of constructing the evaluator", e instanceof ExecutionException ? e.getCause() : e);
 			return null;
         } catch (Throwable e) {
             Activator.log("makeSummary failed", e);
@@ -61,8 +61,8 @@ public class RascalCodeIDESummary implements IDESummaryService {
                 return (INode) eval.call((IRascalMonitor) null, "outline", moduleTree);
 			}
 		} 
-		catch (InterruptedException | ExecutionException e1) {
-			Activator.log("Could not calculate outline due to failure of constructing the evaluator", e1);
+		catch (InterruptedException | ExecutionException e) {
+			Activator.log("Could not calculate outline due to failure of constructing the evaluator", e instanceof ExecutionException ? e.getCause() : e);
 			return null;
         } catch (Throwable e) {
             Activator.log("outline failed", e);

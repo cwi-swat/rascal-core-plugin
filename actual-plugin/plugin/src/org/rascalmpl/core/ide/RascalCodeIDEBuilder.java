@@ -60,7 +60,7 @@ public class RascalCodeIDEBuilder implements BuildRascalService {
                 return (IList) eval.call("check", files, pcfg);
             }
 		} catch (InterruptedException | ExecutionException e) {
-			Activator.log("Rascal type check failed (initializing evaluator)", e);
+			Activator.log("Rascal type check failed (initializing evaluator)", e instanceof ExecutionException ? e.getCause() : e );
 			return EMPTY_LIST;
 		} catch (Throwable e) {
 			Activator.log("Rascal type check failed (check)", e);
@@ -83,7 +83,7 @@ public class RascalCodeIDEBuilder implements BuildRascalService {
                 return (IList) eval.call("checkAll", folder, pcfg);
             }
 		} catch (InterruptedException | ExecutionException e) {
-			Activator.log("Rascal type check failed (initializing evaluator)", e);
+			Activator.log("Rascal type check failed (initializing evaluator)", e instanceof ExecutionException ? e.getCause() : e);
 			return EMPTY_LIST;
 		} catch (Throwable e) {
 			Activator.log("Rascal type check failed (checkAll)", e);
