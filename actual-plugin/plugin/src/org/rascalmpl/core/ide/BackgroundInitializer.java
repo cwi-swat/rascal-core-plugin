@@ -1,5 +1,6 @@
 package org.rascalmpl.core.ide;
 
+import java.io.PrintStream;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
@@ -26,14 +27,15 @@ public class BackgroundInitializer {
 	
 	public static Future<Evaluator> lazyImport(String name, String... modules) {
 		return construct(name, () -> {
-            RuntimePlugin.getInstance().getConsoleStream().println("Initializing evaluator for: " + name + "...");
-            RuntimePlugin.getInstance().getConsoleStream().flush();
+            PrintStream debugStream = RuntimePlugin.getInstance().getConsoleStream();
+			debugStream.println("Initializing evaluator for: " + name + "...");
+            debugStream.flush();
             Evaluator eval = CoreBundleEvaluatorFactory.construct();
             for (String m : modules) {
             	eval.doImport(null, m);
             }
-            RuntimePlugin.getInstance().getConsoleStream().println("Finished initializing evaluator for: " + name);
-            RuntimePlugin.getInstance().getConsoleStream().flush();
+            debugStream.println("Finished initializing evaluator for: " + name);
+            debugStream.flush();
             return eval;
 		});
 	}
