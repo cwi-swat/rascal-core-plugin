@@ -2,6 +2,8 @@ package org.rascalmpl.core.ide;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+
+import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.builder.BuildRascalService;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -60,17 +62,7 @@ public class RascalCodeIDEBuilder implements BuildRascalService {
 			try {
 				return (IList) eval.call("check", files, pcfg);
 			} catch (Throwable e) {
-				eval.getStdErr().println("check failed for: " + files);
-				eval.getStdErr().println("exception: ");
-				if (e instanceof StaticError) {
-					ReadEvalPrintDialogMessages.staticErrorMessage(eval.getStdErr(), (StaticError) e, new StandardTextWriter(true));
-				}
-				else if (e instanceof Throw) {
-					ReadEvalPrintDialogMessages.throwMessage(eval.getStdErr(), (Throw) e, new StandardTextWriter(true));
-				}
-				else {
-					ReadEvalPrintDialogMessages.throwableMessage(eval.getStdErr(), e, eval.getStackTrace(), new StandardTextWriter(true));
-				}
+				Activator.log("Rascal type check failed", e);
 				return EMPTY_LIST;
 			}
 		}
