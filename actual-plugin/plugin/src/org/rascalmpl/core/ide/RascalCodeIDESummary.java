@@ -28,25 +28,23 @@ public class RascalCodeIDESummary implements IDESummaryService {
 
 	@Override
 	public IConstructor calculate(IKernel kernel, IString moduleName, IConstructor pcfg) {
-			Evaluator eval;
-			try {
-				eval = checkerEvaluator.get();
-			} catch (InterruptedException | ExecutionException e1) {
-				Activator.log("Could not calculate summary", e1);
-				return null;
-			}
+		try {
+			Evaluator eval = checkerEvaluator.get();
 			if (eval == null) {
+				Activator.log("Could not calculate summary due to missing evaluator", null);
 				return null;
 			}
 			synchronized (eval) {
-				try {
-					return (IConstructor) eval.call("makeSummary", moduleName, pcfg);
-
-				} catch (Throwable e) {
-					Activator.log("makeSummary failed", e);
-					return null;
-				}
+                return (IConstructor) eval.call("makeSummary", moduleName, pcfg);
 			}
+		} 
+		catch (InterruptedException | ExecutionException e1) {
+			Activator.log("Could not calculate makeSummary due to failure of constructing the evaluator", e1);
+			return null;
+        } catch (Throwable e) {
+            Activator.log("makeSummary failed", e);
+            return null;
+        }
 	}
 
 	@Override
@@ -58,19 +56,16 @@ public class RascalCodeIDESummary implements IDESummaryService {
 				return null;
 			}
 			synchronized (eval) {
-				try {
-					return (INode) eval.call((IRascalMonitor) null, "outline", moduleTree);
-				} catch (Throwable e) {
-					Activator.log("outline failed", e);
-					return null;
-				}
+                return (INode) eval.call((IRascalMonitor) null, "outline", moduleTree);
 			}
 		} 
 		catch (InterruptedException | ExecutionException e1) {
-			Activator.log("Could not calculate outline due to failure of the evaluator", e1);
+			Activator.log("Could not calculate outline due to failure of constructing the evaluator", e1);
 			return null;
-		}
+        } catch (Throwable e) {
+            Activator.log("outline failed", e);
+            return null;
+        }
 	}
-
 
 }

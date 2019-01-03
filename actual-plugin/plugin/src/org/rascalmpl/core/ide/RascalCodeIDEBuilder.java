@@ -45,26 +45,26 @@ public class RascalCodeIDEBuilder implements BuildRascalService {
 
 	@Override
 	public IList compile(IList files, IConstructor pcfg) {
-		Evaluator eval;
 		try {
-			eval = checkerEvaluator.get();
-		} catch (InterruptedException | ExecutionException e1) {
+			Evaluator eval = checkerEvaluator.get();
+            if (eval == null) {
+                return EMPTY_LIST;
+            }
+
+            files = filterOutRascalFiles(files, eval.getValueFactory());
+            if (files.length() == 0) {
+                return EMPTY_LIST;
+            }
+
+            synchronized (eval) {
+                return (IList) eval.call("check", files, pcfg);
+            }
+		} catch (InterruptedException | ExecutionException e) {
+			Activator.log("Rascal type check failed (initializing evaluator)", e);
 			return EMPTY_LIST;
-		}
-		if (eval == null) {
+		} catch (Throwable e) {
+			Activator.log("Rascal type check failed (check)", e);
 			return EMPTY_LIST;
-		}
-		files = filterOutRascalFiles(files, eval.getValueFactory());
-		if (files.length() == 0) {
-			return EMPTY_LIST;
-		}
-		synchronized (eval) {
-			try {
-				return (IList) eval.call("check", files, pcfg);
-			} catch (Throwable e) {
-				Activator.log("Rascal type check failed", e);
-				return EMPTY_LIST;
-			}
 		}
 	}
 
@@ -74,32 +74,20 @@ public class RascalCodeIDEBuilder implements BuildRascalService {
 		if (isIgnoredLocation(folder)) {
 			return EMPTY_LIST;
 		}
-		Evaluator eval;
 		try {
-			eval = checkerEvaluator.get();
-		} catch (InterruptedException | ExecutionException e1) {
+			Evaluator eval = checkerEvaluator.get();
+            if (eval == null) {
+                return EMPTY_LIST;
+            }
+            synchronized (eval) {
+                return (IList) eval.call("checkAll", folder, pcfg);
+            }
+		} catch (InterruptedException | ExecutionException e) {
+			Activator.log("Rascal type check failed (initializing evaluator)", e);
 			return EMPTY_LIST;
-		}
-		if (eval == null) {
+		} catch (Throwable e) {
+			Activator.log("Rascal type check failed (checkAll)", e);
 			return EMPTY_LIST;
-		}
-		synchronized (eval) {
-			try {
-				return (IList) eval.call("checkAll", folder, pcfg);
-			} catch (Throwable e) {
-				eval.getStdErr().println("checkAll failed for: " + folder);
-				eval.getStdErr().println("exception: ");
-				if (e instanceof StaticError) {
-					ReadEvalPrintDialogMessages.staticErrorMessage(eval.getStdErr(), (StaticError) e, new StandardTextWriter(true));
-				}
-				else if (e instanceof Throw) {
-					ReadEvalPrintDialogMessages.throwMessage(eval.getStdErr(), (Throw) e, new StandardTextWriter(true));
-				}
-				else {
-					ReadEvalPrintDialogMessages.throwableMessage(eval.getStdErr(), e, eval.getStackTrace(), new StandardTextWriter(true));
-				}
-				return EMPTY_LIST;
-			}
 		}
 	}
 
