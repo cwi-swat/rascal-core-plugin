@@ -7,14 +7,11 @@ import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.IDESummaryService;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.library.lang.rascal.boot.IKernel;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IString;
-import io.usethesource.vallang.io.StandardTextWriter;
 
 public class RascalCodeIDESummary implements IDESummaryService {
 	
@@ -46,17 +43,7 @@ public class RascalCodeIDESummary implements IDESummaryService {
 					return (IConstructor) eval.call("makeSummary", moduleName, pcfg);
 
 				} catch (Throwable e) {
-					eval.getStdErr().println("makeSummary failed for: " + moduleName);
-					eval.getStdErr().println("exception: ");
-					if (e instanceof StaticError) {
-						ReadEvalPrintDialogMessages.staticErrorMessage(eval.getStdErr(), (StaticError) e, new StandardTextWriter(true));
-					}
-					else if (e instanceof Throw) {
-						ReadEvalPrintDialogMessages.throwMessage(eval.getStdErr(), (Throw) e, new StandardTextWriter(true));
-					}
-					else {
-						ReadEvalPrintDialogMessages.throwableMessage(eval.getStdErr(), e, eval.getStackTrace(), new StandardTextWriter(true));
-					}
+					Activator.log("makeSummary failed", e);
 					return null;
 				}
 			}
@@ -71,7 +58,12 @@ public class RascalCodeIDESummary implements IDESummaryService {
 				return null;
 			}
 			synchronized (eval) {
-                return (INode) eval.call((IRascalMonitor) null, "outline", moduleTree);
+				try {
+					return (INode) eval.call((IRascalMonitor) null, "outline", moduleTree);
+				} catch (Throwable e) {
+					Activator.log("outline failed", e);
+					return null;
+				}
 			}
 		} 
 		catch (InterruptedException | ExecutionException e1) {
