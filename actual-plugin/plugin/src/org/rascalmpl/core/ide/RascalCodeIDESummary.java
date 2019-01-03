@@ -37,7 +37,7 @@ public class RascalCodeIDESummary implements IDESummaryService {
 				return null;
 			}
 			synchronized (eval) {
-                return vprint(eval, (IConstructor) eval.call("makeSummary", moduleName, pcfg));
+                return (IConstructor) eval.call("makeSummary", moduleName, pcfg);
 			}
 		} 
 		catch (InterruptedException | ExecutionException e1) {
@@ -49,20 +49,6 @@ public class RascalCodeIDESummary implements IDESummaryService {
         }
 	}
 	
-
-
-	private IConstructor vprint(Evaluator eval, IConstructor call) {
-		eval.getStdErr().println("makeSummary returned: ");
-		StandardTextWriter writer = new StandardTextWriter(true);
-		try {
-			writer.write(call, eval.getStdErr());
-		} catch (IOException e) {
-            Activator.log("failure to print makeSummary result", e);
-		}
-		return call;
-	}
-
-
 	@Override
 	public INode getOutline(IKernel kernel, IConstructor moduleTree) {
 		try {
