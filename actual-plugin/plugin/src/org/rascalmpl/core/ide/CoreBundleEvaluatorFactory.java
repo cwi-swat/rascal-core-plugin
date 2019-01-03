@@ -17,7 +17,7 @@ public class CoreBundleEvaluatorFactory {
 	
 	public static Evaluator construct() {
 		Bundle coreBundle = findRascalCoreBundle();
-		Evaluator eval = ProjectEvaluatorFactory.getInstance().getBundleEvaluator(coreBundle);
+		Evaluator eval = ProjectEvaluatorFactory.getInstance().getBundleEvaluator(coreBundle, ThreadSafeImpulseConsole.INSTANCE.getWriter(), ThreadSafeImpulseConsole.INSTANCE.getWriter());
 		addNestedJarsToBundle(eval, coreBundle);
 		return eval;
 	}
