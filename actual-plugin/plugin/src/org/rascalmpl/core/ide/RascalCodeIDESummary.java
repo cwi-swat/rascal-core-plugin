@@ -1,5 +1,6 @@
 package org.rascalmpl.core.ide;
 
+import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -12,6 +13,7 @@ import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IString;
+import io.usethesource.vallang.io.StandardTextWriter;
 
 public class RascalCodeIDESummary implements IDESummaryService {
 	
@@ -35,7 +37,7 @@ public class RascalCodeIDESummary implements IDESummaryService {
 				return null;
 			}
 			synchronized (eval) {
-                return (IConstructor) eval.call("makeSummary", moduleName, pcfg);
+                return vprint(eval, (IConstructor) eval.call("makeSummary", moduleName, pcfg));
 			}
 		} 
 		catch (InterruptedException | ExecutionException e1) {
@@ -46,6 +48,20 @@ public class RascalCodeIDESummary implements IDESummaryService {
             return null;
         }
 	}
+	
+
+
+	private IConstructor vprint(Evaluator eval, IConstructor call) {
+		eval.getStdErr().println("makeSummary returned: ");
+		StandardTextWriter writer = new StandardTextWriter(true);
+		try {
+			writer.write(call, eval.getStdErr());
+		} catch (IOException e) {
+            Activator.log("failure to print makeSummary result", e);
+		}
+		return call;
+	}
+
 
 	@Override
 	public INode getOutline(IKernel kernel, IConstructor moduleTree) {
