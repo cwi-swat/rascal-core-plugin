@@ -1,14 +1,8 @@
 package org.rascalmpl.core.ide;
 
-import java.sql.Time;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.builder.BuildRascalService;
 import org.rascalmpl.interpreter.Evaluator;
@@ -26,11 +20,8 @@ import io.usethesource.vallang.io.StandardTextWriter;
 
 public class RascalCodeIDEBuilder implements BuildRascalService {
 
-	private final CompletableFuture<Evaluator> checkerEvaluator;
+	private final Future<Evaluator> checkerEvaluator;
 	private static final IList EMPTY_LIST = IRascalValueFactory.getInstance().list();
-	private final ExecutorService cancelationScheduler = Executors.newSingleThreadExecutor();
-	private final ExecutorService evalScheduler = Executors.newCachedThreadPool();
-
 
 	public RascalCodeIDEBuilder() {
 		// this constructor is run on the main thread, and so are the callbacks
@@ -53,92 +44,51 @@ public class RascalCodeIDEBuilder implements BuildRascalService {
 	}
 
 	@Override
-	public CompletableFuture<IList> compile(IList files, IConstructor pcfg) {
-		CompletableFuture<IList> result = new CompletableFuture<IList>();
-		
-		cancelationScheduler.execute(() -> {
-			Evaluator eval = getEvaluatorOrComplete(result);
-			if (eval != null) {
-                IList filteredFiles = filterOutRascalFiles(files, eval.getValueFactory());
-                if (filteredFiles.length() == 0) {
-                    result.complete(EMPTY_LIST);
-                    return;
-                }
-                callEvalInterruptable(result, eval, "check", filteredFiles, pcfg);
-			}
-		});
+	public IList compile(IList files, IConstructor pcfg) {
+		try {
+			Evaluator eval = checkerEvaluator.get();
+            if (eval == null) {
+                return EMPTY_LIST;
+            }
 
-		return result;
+            files = filterOutRascalFiles(files, eval.getValueFactory());
+            if (files.length() == 0) {
+                return EMPTY_LIST;
+            }
+
+            synchronized (eval) {
+                return (IList) eval.call("check", files, pcfg);
+            }
+		} catch (InterruptedException | ExecutionException e) {
+			Activator.log("Rascal type check failed (initializing evaluator)", e instanceof ExecutionException ? e.getCause() : e );
+			return EMPTY_LIST;
+		} catch (Throwable e) {
+			Activator.log("Rascal type check failed (check)", e);
+			return EMPTY_LIST;
+		}
 	}
+
 
 	@Override
-	public CompletableFuture<IList> compileAll(ISourceLocation folder, IConstructor pcfg) {
+	public IList compileAll(ISourceLocation folder, IConstructor pcfg) {
 		if (isIgnoredLocation(folder)) {
-			return CompletableFuture.completedFuture(EMPTY_LIST);
+			return EMPTY_LIST;
 		}
-
-		CompletableFuture<IList> result = new CompletableFuture<IList>();
-		
-		cancelationScheduler.execute(() -> {
-			Evaluator eval = getEvaluatorOrComplete(result);
-			if (eval != null) {
-                callEvalInterruptable(result, eval, "checkAll", folder, pcfg);
-			}
-		});
-
-		return result;
-	}
-	
-	private Evaluator getEvaluatorOrComplete(CompletableFuture<IList> result) {
-		while (true) {
-			try {
-				if (result.isCancelled()) {
-					return null;
-				}
-				return checkerEvaluator.get(1, TimeUnit.SECONDS);
-			}
-			catch (TimeoutException e) {
-				continue;
-			} 
-			catch (InterruptedException | ExecutionException e) {
-				Activator.log("Rascal type check failed (initializing evaluator)", e instanceof ExecutionException ? e.getCause() : e );
-				result.complete(EMPTY_LIST);
-				return null;
-			}
+		try {
+			Evaluator eval = checkerEvaluator.get();
+            if (eval == null) {
+                return EMPTY_LIST;
+            }
+            synchronized (eval) {
+                return (IList) eval.call("checkAll", folder, pcfg);
+            }
+		} catch (InterruptedException | ExecutionException e) {
+			Activator.log("Rascal type check failed (initializing evaluator)", e instanceof ExecutionException ? e.getCause() : e);
+			return EMPTY_LIST;
+		} catch (Throwable e) {
+			Activator.log("Rascal type check failed (checkAll)", e);
+			return EMPTY_LIST;
 		}
 	}
-	
-	private void callEvalInterruptable(CompletableFuture<IList> result, Evaluator eval, String functionName, IValue... args) {
-		synchronized (eval) {
-			// now we have the lock, we'll call stuff on our own thread, so that we can send an interrupt to the evaluator
-			Future<IList> calculatedResult = evalScheduler.submit(() -> (IList)eval.call(functionName, args));
-			while (true) {
-				try {
-					if (result.isCancelled()) {
-						eval.interrupt();
-						calculatedResult.cancel(true);
-                        try {
-                        	// now wait for the call to finish, as we can only release the eval lock afterwards
-                            calculatedResult.get();
-                        } catch (Throwable e) {
-                        }
-						return;
-					}
-					IList actualResult = calculatedResult.get(1, TimeUnit.SECONDS);
-					result.complete(actualResult == null ? EMPTY_LIST : actualResult);
-					return;
-				}
-				catch (TimeoutException e) {
-					continue;
-				} catch (InterruptedException | ExecutionException e) {
-					Activator.log("Rascal type check failed (check)", e instanceof ExecutionException ? e.getCause() : e );
-					result.complete(EMPTY_LIST);
-					return;
-				}
-			}
-		}
-	}
-
-
 
 }
