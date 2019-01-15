@@ -9,6 +9,7 @@ import java.util.function.Function;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.builder.BuildRascalService;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
 
 import io.usethesource.vallang.IConstructor;
@@ -77,6 +78,8 @@ public class RascalCodeIDEBuilder implements BuildRascalService {
                     currentEvaluator.set(eval);
                     try {
                         return (IList) eval.call("check", filteredFiles, pcfg);
+                    } catch (InterruptException e) {
+                        return EMPTY_LIST;
                     } finally {
                         currentEvaluator.set(null);
                     }
@@ -108,6 +111,8 @@ public class RascalCodeIDEBuilder implements BuildRascalService {
                     currentEvaluator.set(eval);
                     try {
                         return (IList) eval.call("checkAll", folder, pcfg);
+                    } catch (InterruptException e) {
+                        return EMPTY_LIST;
                     } finally {
                         currentEvaluator.set(null);
                     }
