@@ -2,21 +2,21 @@ package org.rascalmpl.core.ide;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.builder.BuildRascalService;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.io.StandardTextWriter;
 
 public class RascalCodeIDEBuilder implements BuildRascalService {
 
@@ -42,53 +42,84 @@ public class RascalCodeIDEBuilder implements BuildRascalService {
 	private static boolean isIgnoredLocation(ISourceLocation l) {
 		return "project".equals(l.getScheme()) && ("rascal".equals(l.getAuthority()) || "rascal-eclipse".equals(l.getAuthority()));
 	}
+	
+	private FutureTask<IList> rascalInterruptableTask(Function<AtomicReference<Evaluator>, IList> calc) {
+	    final AtomicReference<Evaluator> currentEvaluator = new AtomicReference<>(null);
+        return new FutureTask<IList>(() -> calc.apply(currentEvaluator)) {
+            @Override
+            public boolean cancel(boolean mayInterruptIfRunning) {
+                if (!isDone()) {
+                    Evaluator eval = currentEvaluator.get();
+                    if (eval != null) {
+                        eval.interrupt();
+                    }
+                }
+                return super.cancel(mayInterruptIfRunning);
+            }
+        };
+	}
 
 	@Override
-	public IList compile(IList files, IConstructor pcfg) {
-		try {
-			Evaluator eval = checkerEvaluator.get();
-            if (eval == null) {
+	public FutureTask<IList> compile(IList files, IConstructor pcfg) {
+	    return rascalInterruptableTask((currentEvaluator) -> {
+            try {
+                Evaluator eval = checkerEvaluator.get();
+                if (eval == null) {
+                    return EMPTY_LIST;
+                }
+
+                IList filteredFiles = filterOutRascalFiles(files, eval.getValueFactory());
+                if (filteredFiles.length() == 0) {
+                    return EMPTY_LIST;
+                }
+
+                synchronized (eval) {
+                    currentEvaluator.set(eval);
+                    try {
+                        return (IList) eval.call("check", filteredFiles, pcfg);
+                    } finally {
+                        currentEvaluator.set(null);
+                    }
+                }
+            } catch (InterruptedException | ExecutionException e) {
+                Activator.log("Rascal type check failed (initializing evaluator)",
+                        e instanceof ExecutionException ? e.getCause() : e);
+                return EMPTY_LIST;
+            } catch (Throwable e) {
+                Activator.log("Rascal type check failed (check)", e);
                 return EMPTY_LIST;
             }
-
-            files = filterOutRascalFiles(files, eval.getValueFactory());
-            if (files.length() == 0) {
-                return EMPTY_LIST;
-            }
-
-            synchronized (eval) {
-                return (IList) eval.call("check", files, pcfg);
-            }
-		} catch (InterruptedException | ExecutionException e) {
-			Activator.log("Rascal type check failed (initializing evaluator)", e instanceof ExecutionException ? e.getCause() : e );
-			return EMPTY_LIST;
-		} catch (Throwable e) {
-			Activator.log("Rascal type check failed (check)", e);
-			return EMPTY_LIST;
-		}
+        });
 	}
 
 
 	@Override
-	public IList compileAll(ISourceLocation folder, IConstructor pcfg) {
-		if (isIgnoredLocation(folder)) {
-			return EMPTY_LIST;
-		}
-		try {
-			Evaluator eval = checkerEvaluator.get();
-            if (eval == null) {
-                return EMPTY_LIST;
-            }
-            synchronized (eval) {
-                return (IList) eval.call("checkAll", folder, pcfg);
-            }
-		} catch (InterruptedException | ExecutionException e) {
-			Activator.log("Rascal type check failed (initializing evaluator)", e instanceof ExecutionException ? e.getCause() : e);
-			return EMPTY_LIST;
-		} catch (Throwable e) {
-			Activator.log("Rascal type check failed (checkAll)", e);
-			return EMPTY_LIST;
-		}
+	public FutureTask<IList> compileAll(ISourceLocation folder, IConstructor pcfg) {
+	    return rascalInterruptableTask((currentEvaluator) -> {
+    		if (isIgnoredLocation(folder)) {
+    			return EMPTY_LIST;
+    		}
+    		try {
+    			Evaluator eval = checkerEvaluator.get();
+                if (eval == null) {
+                    return EMPTY_LIST;
+                }
+                synchronized (eval) {
+                    currentEvaluator.set(eval);
+                    try {
+                        return (IList) eval.call("checkAll", folder, pcfg);
+                    } finally {
+                        currentEvaluator.set(null);
+                    }
+                }
+    		} catch (InterruptedException | ExecutionException e) {
+    			Activator.log("Rascal type check failed (initializing evaluator)", e instanceof ExecutionException ? e.getCause() : e);
+    			return EMPTY_LIST;
+    		} catch (Throwable e) {
+    			Activator.log("Rascal type check failed (checkAll)", e);
+    			return EMPTY_LIST;
+    		}
+	    });
 	}
 
 }
