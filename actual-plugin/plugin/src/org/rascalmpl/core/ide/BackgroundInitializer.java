@@ -2,29 +2,30 @@ package org.rascalmpl.core.ide;
 
 import java.io.PrintWriter;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.Evaluator;
 
 public class BackgroundInitializer {
-	public static <T> Future<T> construct(String name, Callable<T> generate) {
-		FutureTask<T> result = new FutureTask<>(() -> {
+	public static <T> CompletableFuture<T> construct(String name, Callable<T> generate) {
+		CompletableFuture<T> result = new CompletableFuture<>();
+		Thread background = new Thread(() -> {
 			try {
-                return generate.call();
+				result.complete(generate.call());
 			} catch (Throwable e) {
 				Activator.log("Cannot initialize " + name, e);
-				return null;
+				result.completeExceptionally(e);
 			}
 		});
-		Thread background = new Thread(result);
 		background.setDaemon(true);
 		background.setName("Background initializer for: " + name);
 		background.start();
 		return result;
 	}
 	
-	public static Future<Evaluator> lazyImport(String name, String... modules) {
+	public static CompletableFuture<Evaluator> lazyImport(String name, String... modules) {
 		return construct(name, () -> {
 			PrintWriter debugStream = new PrintWriter(ThreadSafeImpulseConsole.INSTANCE.getWriter());
 			debugStream.println("Initializing evaluator for: " + name + "...");
