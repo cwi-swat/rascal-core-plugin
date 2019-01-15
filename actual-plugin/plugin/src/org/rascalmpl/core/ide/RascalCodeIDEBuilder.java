@@ -117,6 +117,11 @@ public class RascalCodeIDEBuilder implements BuildRascalService {
 					if (result.isCancelled()) {
 						eval.interrupt();
 						calculatedResult.cancel(true);
+                        try {
+                        	// now wait for the call to finish, as we can only release the eval lock afterwards
+                            calculatedResult.get();
+                        } catch (Throwable e) {
+                        }
 						return;
 					}
 					IList actualResult = calculatedResult.get(1, TimeUnit.SECONDS);
