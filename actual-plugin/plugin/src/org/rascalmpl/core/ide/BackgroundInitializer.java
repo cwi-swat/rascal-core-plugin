@@ -5,6 +5,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.util.ThreadSafeImpulseConsole;
 import org.rascalmpl.interpreter.Evaluator;
 
 public class BackgroundInitializer {

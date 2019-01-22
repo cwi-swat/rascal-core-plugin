@@ -10,6 +10,7 @@ import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
+import org.rascalmpl.eclipse.util.ThreadSafeImpulseConsole;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.uri.URIUtil;
 
