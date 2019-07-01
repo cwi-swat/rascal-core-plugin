@@ -5,7 +5,7 @@
 	<parent>
         <groupId>org.rascalmpl</groupId>
         <artifactId>rascal-core-plugin-parent</artifactId>
-        <version>0.2.0-SNAPSHOT</version>
+        <version>0.3.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>rascal-core-update-site</artifactId>
