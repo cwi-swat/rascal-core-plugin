@@ -2,7 +2,7 @@
 <feature
       id="rascal_core_feature"
       label="rascal_core_feature"
-      version="0.2.0.qualifier">
+      version="0.3.0.qualifier">
 
    <description url="https://github.com/usethesource/rascal-core">
        This plugin replaces the current type checker inside rascal-eclipse, with the newly created rascal-core
@@ -37,5 +37,5 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&
 
    <plugin id="typepal" version="0.0.0" download-size="0" install-size="0" unpack="false"/>
    <plugin id="rascal_core_plugin" version="0.0.0" download-size="0" install-size="0" unpack="false"/>
-   <plugin id="org.rascalmpl.rascal_core_bundle" version="0.2.0.qualifier" download-size="0" install-size="0" unpack="false"/>
+   <plugin id="org.rascalmpl.rascal_core_bundle" version="0.3.0.qualifier" download-size="0" install-size="0" unpack="false"/>
 </feature>
