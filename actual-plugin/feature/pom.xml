@@ -5,7 +5,7 @@
 	<parent>
         <groupId>org.rascalmpl</groupId>
         <artifactId>rascal-core-plugin-parent</artifactId>
-        <version>0.2.0-SNAPSHOT</version>
+        <version>0.3.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>rascal_core_feature</artifactId>
@@ -15,12 +15,12 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>rascal_core_plugin</artifactId>
-			<version>0.2.0-SNAPSHOT</version>
+			<version>0.3.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>rascal_core_bundle</artifactId>
-			<version>0.2.0-SNAPSHOT</version>
+			<version>0.3.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
