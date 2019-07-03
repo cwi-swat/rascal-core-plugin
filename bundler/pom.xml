@@ -59,7 +59,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Bundle-Version>0.2.0.${maven.build.timestamp}</Bundle-Version>
+                        <Bundle-Version>0.3.0.${maven.build.timestamp}</Bundle-Version>
                         <Embed-Dependency>
                             rascal-core
                         </Embed-Dependency>
