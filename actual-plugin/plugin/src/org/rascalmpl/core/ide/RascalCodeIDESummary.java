@@ -1,6 +1,5 @@
 package org.rascalmpl.core.ide;
 
-import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -8,12 +7,10 @@ import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.IDESummaryService;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.library.lang.rascal.boot.IKernel;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IString;
-import io.usethesource.vallang.io.StandardTextWriter;
 
 public class RascalCodeIDESummary implements IDESummaryService {
 	
@@ -29,7 +26,7 @@ public class RascalCodeIDESummary implements IDESummaryService {
 
 
 	@Override
-	public IConstructor calculate(IKernel kernel, IString moduleName, IConstructor pcfg) {
+	public IConstructor calculate(IString moduleName, IConstructor pcfg) {
 		try {
 			Evaluator eval = checkerEvaluator.get();
 			if (eval == null) {
@@ -50,7 +47,7 @@ public class RascalCodeIDESummary implements IDESummaryService {
 	}
 	
 	@Override
-	public INode getOutline(IKernel kernel, IConstructor moduleTree) {
+	public INode getOutline(IConstructor moduleTree) {
 		try {
 			Evaluator eval = outlineEvaluator.get();
 			if (eval == null) {
