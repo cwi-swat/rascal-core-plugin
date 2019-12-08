@@ -63,9 +63,9 @@
         </repository>
 
         <repository>
-            <id>usethesource-rascalmpl-unstable</id>
+            <id>usethesource-rascalmpl-stable</id>
             <layout>p2</layout>
-            <url>https://update.rascal-mpl.org/unstable/</url>
+            <url>https://update.rascal-mpl.org/stable/</url>
         </repository>
 
         <repository>
