@@ -21,11 +21,11 @@
 	<distributionManagement>
 		<repository>
 			<id>usethesource-releases</id>
-			<url>http://nexus.usethesource.io/content/repositories/releases/</url>
+			<url>https://nexus.usethesource.io/content/repositories/releases/</url>
 		</repository>
 		<snapshotRepository>
 			<id>usethesource-snapshots</id>
-			<url>http://nexus.usethesource.io/content/repositories/snapshots/</url>
+			<url>https://nexus.usethesource.io/content/repositories/snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
 
@@ -55,11 +55,11 @@
     <repositories>
         <repository>
             <id>usethesource-cache</id>
-            <url>http://nexus.usethesource.io/content/repositories/public/</url>
+            <url>https://nexus.usethesource.io/content/repositories/public/</url>
         </repository>
         <repository>
             <id>usethesource-snapshots</id>
-            <url>http://nexus.usethesource.io/content/repositories/snapshots/</url>
+            <url>https://nexus.usethesource.io/content/repositories/snapshots/</url>
         </repository>
 
         <repository>
@@ -77,7 +77,7 @@
         <repository>
             <id>eclipse-oxygen</id>
             <layout>p2</layout>
-            <url>http://nexus.usethesource.io/content/repositories/eclipse-oxygen/</url>
+            <url>https://nexus.usethesource.io/content/repositories/eclipse-oxygen/</url>
         </repository>
     </repositories>
 
